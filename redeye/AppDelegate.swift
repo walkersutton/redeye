@@ -1,4 +1,3 @@
-//
 //  AppDelegate.swift
 //  redeye
 //
@@ -8,32 +7,91 @@
 import Cocoa
 import SwiftUI
 
+import IOKit.ps
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-  var window: NSWindow!
-
+//  var popover: NSPopover!
+  var statusBarItem: NSStatusItem!
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
-    // Create the SwiftUI view that provides the window contents.
-    let contentView = ContentView()
 
-    // Create the window and set the content view.
-    window = NSWindow(
-        contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
-        styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-        backing: .buffered, defer: false)
-    window.isReleasedWhenClosed = false
-    window.center()
-    window.setFrameAutosaveName("Main Window")
-    window.contentView = NSHostingView(rootView: contentView)
-    window.makeKeyAndOrderFront(nil)
+      let statusBar = NSStatusBar.system
+      statusBarItem = statusBar.statusItem(
+          withLength: NSStatusItem.squareLength)
+      statusBarItem.button?.image = NSImage(named: "Icon")
+
+//      let statusBarMenu = NSMenu(title: "RedEye Bar Menu")
+      let statusBarMenu = NSMenu()
+      statusBarItem.menu = statusBarMenu
+
+    statusBarMenu.addItem(
+        withTitle: "Battery Info",
+        action: #selector(AppDelegate.batteryInfo),
+        keyEquivalent: "")
+
+    statusBarMenu.addItem(
+        withTitle: "Preferences",
+        action: #selector(AppDelegate.preferences),
+        keyEquivalent: "")
+
+    statusBarMenu.addItem(
+        withTitle: "Help",
+        action: #selector(AppDelegate.help),
+        keyEquivalent: "")
+
+    statusBarMenu.addItem(
+        withTitle: "About",
+        action: #selector(AppDelegate.about),
+        keyEquivalent: "")
+
+    statusBarMenu.addItem(
+        withTitle: "Quit",
+        action: #selector(AppDelegate.quit),
+        keyEquivalent: "")
+    
+    while (true) {
+      if (getBatteryInfo() < 95) {
+        print("LOW BATTERY")
+      }
+      do {
+        sleep(4)
+      }
+    }
+  }
+  
+  @objc func batteryInfo() {
+      print("batteryInfo")
   }
 
-  func applicationWillTerminate(_ aNotification: Notification) {
-    // Insert code here to tear down your application
+  @objc func preferences() {
+      print("preferences")
   }
 
+  @objc func help() {
+      print("help")
+  }
+
+  @objc func about() {
+      print("about")
+  }
+
+  @objc func quit() {
+      print("quit")
+  }
+  
+  func getBatteryInfo() -> Int {
+    guard let dict = (IOPSCopyPowerSourcesInfo().takeRetainedValue() as? NSArray)?.firstObject as? NSDictionary else { return -1 }
+    return dict[kIOPSCurrentCapacityKey] as? Int ?? -1
+  //    let isCharging = dict[kIOPSIsChargingKey] as? Bool ?? false
+  //    let currentCapacity = dict[kIOPSCurrentCapacityKey] as? Int
+  //    let delegate?.batteryAlertProtocolUpdated()
+
+
+  //    let snapshot = IOKit.power
+  //    print(snapshot)
+
+  }
 
 }
-
