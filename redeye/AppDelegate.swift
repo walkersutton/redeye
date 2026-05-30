@@ -1,97 +1,136 @@
-//  AppDelegate.swift
-//  redeye
-//
-//  Created by Walker Cole Sutton on 11/4/20.
-//
-
 import Cocoa
-import SwiftUI
-
-import IOKit.ps
+import Combine
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-//  var popover: NSPopover!
-  var statusBarItem: NSStatusItem!
+    private var statusItem: NSStatusItem!
+    private let batteryMonitor = BatteryMonitor()
+    private let overlayManager = OverlayManager()
+    private var preferencesController: PreferencesWindowController?
+    private var cancellables = Set<AnyCancellable>()
 
-  func applicationDidFinishLaunching(_ aNotification: Notification) {
+    private let batteryMenuItem = NSMenuItem()
+    private let overlayMenuItem = NSMenuItem()
 
-      let statusBar = NSStatusBar.system
-      statusBarItem = statusBar.statusItem(
-          withLength: NSStatusItem.squareLength)
-      statusBarItem.button?.image = NSImage(named: "Icon")
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
+        registerDefaults()
+        buildStatusItem()
 
-//      let statusBarMenu = NSMenu(title: "RedEye Bar Menu")
-      let statusBarMenu = NSMenu()
-      statusBarItem.menu = statusBarMenu
+        batteryMonitor.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.apply($0) }
+            .store(in: &cancellables)
 
-    statusBarMenu.addItem(
-        withTitle: "Battery Info",
-        action: #selector(AppDelegate.batteryInfo),
-        keyEquivalent: "")
-
-    statusBarMenu.addItem(
-        withTitle: "Preferences",
-        action: #selector(AppDelegate.preferences),
-        keyEquivalent: "")
-
-    statusBarMenu.addItem(
-        withTitle: "Help",
-        action: #selector(AppDelegate.help),
-        keyEquivalent: "")
-
-    statusBarMenu.addItem(
-        withTitle: "About",
-        action: #selector(AppDelegate.about),
-        keyEquivalent: "")
-
-    statusBarMenu.addItem(
-        withTitle: "Quit",
-        action: #selector(AppDelegate.quit),
-        keyEquivalent: "")
-    
-    while (true) {
-      if (getBatteryInfo() < 95) {
-        print("LOW BATTERY")
-      }
-      do {
-        sleep(4)
-      }
+        batteryMonitor.start()
     }
-  }
-  
-  @objc func batteryInfo() {
-      print("batteryInfo")
-  }
 
-  @objc func preferences() {
-      print("preferences")
-  }
+    // MARK: - Setup
 
-  @objc func help() {
-      print("help")
-  }
+    private func registerDefaults() {
+        UserDefaults.standard.register(defaults: [
+            Preferences.thresholdKey: Preferences.defaultThreshold,
+            Preferences.maxIntensityKey: Preferences.defaultMaxIntensity,
+        ])
+    }
 
-  @objc func about() {
-      print("about")
-  }
+    private func buildStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
-  @objc func quit() {
-      print("quit")
-  }
-  
-  func getBatteryInfo() -> Int {
-    guard let dict = (IOPSCopyPowerSourcesInfo().takeRetainedValue() as? NSArray)?.firstObject as? NSDictionary else { return -1 }
-    return dict[kIOPSCurrentCapacityKey] as? Int ?? -1
-  //    let isCharging = dict[kIOPSIsChargingKey] as? Bool ?? false
-  //    let currentCapacity = dict[kIOPSCurrentCapacityKey] as? Int
-  //    let delegate?.batteryAlertProtocolUpdated()
+        if let btn = statusItem.button {
+            btn.image = NSImage(named: "Icon")
+            btn.image?.isTemplate = true
+            btn.imagePosition = .imageLeft
+        }
 
+        batteryMenuItem.isEnabled = false
+        overlayMenuItem.isEnabled = false
 
-  //    let snapshot = IOKit.power
-  //    print(snapshot)
+        let menu = NSMenu()
+        menu.addItem(batteryMenuItem)
+        menu.addItem(.separator())
+        menu.addItem(overlayMenuItem)
+        menu.addItem(.separator())
 
-  }
+        let prefsItem = NSMenuItem(title: "Preferences…", action: #selector(openPreferences), keyEquivalent: ",")
+        prefsItem.target = self
+        menu.addItem(prefsItem)
 
+        menu.addItem(.separator())
+
+        let aboutItem = NSMenuItem(title: "About Redeye", action: #selector(openAbout), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+
+        menu.addItem(NSMenuItem(title: "Quit Redeye", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+
+        statusItem.menu = menu
+    }
+
+    // MARK: - Battery Updates
+
+    private func apply(_ state: BatteryState) {
+        updateMenuBar(state)
+        overlayManager.update(state)
+    }
+
+    private func updateMenuBar(_ state: BatteryState) {
+        guard let btn = statusItem.button else { return }
+        let threshold = UserDefaults.standard.integer(forKey: Preferences.thresholdKey)
+
+        if let pct = state.percentage {
+            btn.title = "  \(pct)%"
+
+            var info = "Battery: \(pct)%"
+            if state.isCharging {
+                info += "  ⚡"
+            } else if let mins = state.timeToEmptyMinutes {
+                info += "  " + minutesFormatted(mins)
+            }
+            batteryMenuItem.title = info
+
+            let isActive = pct <= threshold && !state.isCharging
+            overlayMenuItem.attributedTitle = statusLabel(
+                isActive ? "Red Eye: Active" : "Red Eye: Inactive",
+                dotColor: isActive ? .systemRed : .tertiaryLabelColor
+            )
+        } else {
+            btn.title = ""
+            batteryMenuItem.title = "Battery: —"
+            overlayMenuItem.attributedTitle = statusLabel("Red Eye: Inactive", dotColor: .tertiaryLabelColor)
+        }
+    }
+
+    private func minutesFormatted(_ minutes: Int) -> String {
+        let h = minutes / 60, m = minutes % 60
+        return h > 0 ? "\(h)h \(m)m remaining" : "\(m)m remaining"
+    }
+
+    private func statusLabel(_ text: String, dotColor: NSColor) -> NSAttributedString {
+        let s = NSMutableAttributedString(
+            string: "● ",
+            attributes: [.foregroundColor: dotColor, .font: NSFont.systemFont(ofSize: 10)]
+        )
+        s.append(NSAttributedString(
+            string: text,
+            attributes: [.font: NSFont.menuFont(ofSize: 0)]
+        ))
+        return s
+    }
+
+    // MARK: - Actions
+
+    @objc private func openPreferences() {
+        if preferencesController == nil {
+            preferencesController = PreferencesWindowController()
+        }
+        preferencesController?.showWindow(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc private func openAbout() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.orderFrontStandardAboutPanel(nil)
+    }
 }
