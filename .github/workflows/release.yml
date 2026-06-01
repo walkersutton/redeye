@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Tag Matches App Version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tags must use vMAJOR.MINOR.PATCH, got ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          PROJECT_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' redeye/Info.plist)"
+          PROJECT_BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' redeye/Info.plist)"
+
+          if [[ "$PROJECT_VERSION" != "$VERSION" ]]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match CFBundleShortVersionString ${PROJECT_VERSION}"
+            exit 1
+          fi
+
+          if [[ ! "$PROJECT_BUILD" =~ ^[0-9]+$ ]]; then
+            echo "::error::CFBundleVersion must be an integer, got ${PROJECT_BUILD}"
+            exit 1
+          fi
+
+      - name: Build App
+        run: |
+          xcodebuild -scheme redeye \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual
+
+      - name: Sign App
+        run: |
+          codesign --force --deep --sign - "build/Build/Products/Release/redeye.app"
+          codesign --verify --deep --strict --verbose=2 "build/Build/Products/Release/redeye.app"
+
+      - name: Compress App
+        run: |
+          cd build/Build/Products/Release
+          ditto -c -k --keepParent redeye.app ../../../../redeye.zip
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Create DMG
+        run: |
+          create-dmg \
+            --volname "redeye" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "redeye.app" 175 190 \
+            --hide-extension "redeye.app" \
+            --app-drop-link 425 190 \
+            "redeye.dmg" \
+            "build/Build/Products/Release/redeye.app"
+
+      - name: Generate Sparkle Appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          DOWNLOAD_URL_PREFIX: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/
+        run: |
+          if [ -z "${SPARKLE_PRIVATE_KEY:-}" ]; then
+            echo "::error::Missing SPARKLE_PRIVATE_KEY secret"
+            exit 1
+          fi
+
+          mkdir -p release-assets
+          cp redeye.dmg release-assets/redeye.dmg
+
+          echo "$SPARKLE_PRIVATE_KEY" | \
+            build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_appcast \
+              --ed-key-file - \
+              --download-url-prefix "$DOWNLOAD_URL_PREFIX" \
+              --link "https://github.com/${{ github.repository }}" \
+              release-assets
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            redeye.zip
+            redeye.dmg
+            release-assets/appcast.xml
+          draft: false
+          prerelease: false
+          generate_release_notes: true

@@ -1,0 +1,5 @@
+build/
+.gstack/
+xcuserdata/
+*.xcuserstate
+.DS_Store
