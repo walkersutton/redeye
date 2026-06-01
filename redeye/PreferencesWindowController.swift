@@ -451,16 +451,13 @@ private struct AboutTab: View {
                 .frame(maxWidth: 290)
                 .padding(.top, 16)
 
-            HStack(spacing: 9) {
-                Link("GitHub", destination: URL(string: "https://github.com/walkersutton/redeye")!)
-                    .foregroundStyle(t.accent)
-                Text("·").foregroundStyle(t.text3)
-                Button("Acknowledgements") {}
-                    .buttonStyle(.plain)
-                    .foregroundStyle(t.accent)
-            }
-            .font(.system(size: 13))
-            .padding(.top, 20)
+            Link("GitHub", destination: URL(string: "https://github.com/walkersutton/redeye")!)
+                .foregroundStyle(t.accent)
+                .font(.system(size: 13))
+                .onHover { inside in
+                    if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                }
+                .padding(.top, 20)
 
             Text("© 2024 Walker Sutton")
                 .font(.system(size: 12))

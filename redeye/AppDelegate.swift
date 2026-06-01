@@ -17,7 +17,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var lowBatteryPreviewTimer: Timer?
     private var lowBatteryPreviewPercentage = 20
 
+    func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+        openSettings()
+        return true
+    }
+
     func applicationDidFinishLaunching(_: Notification) {
+        NSApp.mainMenu = nil
         let showIcon = UserDefaults.standard.object(forKey: Preferences.showMenuBarIconKey) as? Bool ?? true
         NSApp.setActivationPolicy(showIcon ? .accessory : .regular)
         buildStatusItem()
@@ -60,6 +66,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applyMenuBarVisibility(_ show: Bool) {
         statusItem?.isVisible = show
         NSApp.setActivationPolicy(show ? .accessory : .regular)
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+            self.settingsController?.window?.makeKeyAndOrderFront(nil)
+        }
     }
 
     // MARK: - Battery Updates
