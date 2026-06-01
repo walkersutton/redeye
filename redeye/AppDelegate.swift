@@ -25,7 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_: Notification) {
         NSApp.mainMenu = nil
         let showIcon = UserDefaults.standard.object(forKey: Preferences.showMenuBarIconKey) as? Bool ?? true
-        NSApp.setActivationPolicy(showIcon ? .accessory : .regular)
+        NSApp.setActivationPolicy(.accessory)
         buildStatusItem()
         statusItem.isVisible = showIcon
 
@@ -65,7 +65,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applyMenuBarVisibility(_ show: Bool) {
         statusItem?.isVisible = show
-        NSApp.setActivationPolicy(show ? .accessory : .regular)
         DispatchQueue.main.async {
             NSApp.activate(ignoringOtherApps: true)
             self.settingsController?.window?.makeKeyAndOrderFront(nil)

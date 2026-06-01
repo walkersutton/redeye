@@ -344,7 +344,7 @@ private struct GeneralTab: View {
                     }
                     RDDivider(t: t)
                     RDRow("Show menu bar icon",
-                          description: "When hidden, open redeye from the Dock instead.",
+                          description: "When hidden, redeye runs silently in the background.",
                           t: t) {
                         Toggle("", isOn: $showMenuBarIcon)
                             .labelsHidden()
