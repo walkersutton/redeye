@@ -1,10 +1,10 @@
-<p align="center"><img src="docs/icon.png" width="128" alt="redeye icon"></p>
-
-# redeye
-
-A macOS menu bar app that tints your display red as your battery runs low — so you never get surprised by a dead laptop.
-
-<!-- Inspired by a Hammerspoon script of the same name. -->
+<div align="center">
+    <img src="docs/icon.png" width="128" alt="redeye">
+    <h1>redeye</h1>
+  <p><strong>A macOS menu bar app that tints your display red as your battery runs low — so you never get surprised by a dead laptop.</strong><br>
+    <!-- Inspired by a Hammerspoon script of the same name. -->
+  </p>
+</div>
 
 ## How it works
 
