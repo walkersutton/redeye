@@ -1,4 +1,4 @@
-<img src="docs/icon.png" width="128" alt="redeye icon">
+<p align="center"><img src="docs/icon.png" width="128" alt="redeye icon"></p>
 
 # redeye
 
