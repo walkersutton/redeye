@@ -38,17 +38,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         configureStatusButton()
 
-        let prefsItem = NSMenuItem(title: "Preferences…", action: #selector(openPreferences), keyEquivalent: ",")
-        prefsItem.target = self
+        let settingsItem = NSMenuItem(title: "Settings", action: #selector(openPreferences), keyEquivalent: "")
+        settingsItem.target = self
 
         let aboutItem = NSMenuItem(title: "About redeye", action: #selector(openAbout), keyEquivalent: "")
         aboutItem.target = self
 
         let menu = NSMenu()
-        menu.addItem(prefsItem)
+        menu.addItem(settingsItem)
         menu.addItem(.separator())
         menu.addItem(aboutItem)
-        menu.addItem(NSMenuItem(title: "Quit redeye", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        let quitItem = NSMenuItem(title: "Quit redeye", action: #selector(quitApp), keyEquivalent: "")
+        quitItem.target = self
+        menu.addItem(quitItem)
 
         statusItem.menu = menu
     }
@@ -142,6 +144,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         settingsController?.select(tab)
         settingsController?.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc private func quitApp() {
+        NSApplication.shared.terminate(nil)
     }
 
     @objc private func openPreferences() {

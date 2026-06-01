@@ -1,3 +1,5 @@
+<img src="docs/icon.png" width="128" alt="redeye icon">
+
 # redeye
 
 A macOS menu bar app that tints your display red as your battery runs low — so you never get surprised by a dead laptop.
