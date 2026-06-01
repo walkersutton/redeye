@@ -22,9 +22,11 @@ When your battery drops below 10%, redeye fades a red overlay across all connect
 
 ## Install
 
-Download the latest release from the [Releases](../../releases) page, unzip, and drag `redeye.app` to your Applications folder.
+Download the latest release dmg from the [Releases](../../releases) page and drag `redeye.app` to your Applications folder.
 
-> **Note:** Release builds are ad-hoc signed (not notarized). On first launch, right-click the app and choose Open to bypass Gatekeeper.
+> **Note:** Release builds are ad-hoc signed (not notarized). On first launch, go to **System Setting** -> **Privacy & Security** -> **Open Anyway**
+> <img width="277" height="288" alt="Screenshot 2026-05-31 at 22 56 47" src="https://github.com/user-attachments/assets/92975fb2-866e-46a9-9376-9c8cfcea6ce9" />
+> <img width="731" height="197" alt="Screenshot 2026-05-31 at 22 58 11" src="https://github.com/user-attachments/assets/fe94b76c-8364-4b22-8292-b3b9abef0fa7" />
 
 ## Development
 
