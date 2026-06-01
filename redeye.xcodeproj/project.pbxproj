@@ -16,29 +16,10 @@
 		5D850D69255355E8007961B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D850D68255355E8007961B2 /* Assets.xcassets */; };
 		5D850D6C255355E8007961B2 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D850D6B255355E8007961B2 /* Preview Assets.xcassets */; };
 		5D850D6F255355E8007961B2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D850D6D255355E8007961B2 /* Main.storyboard */; };
-		5D850D7B255355E8007961B2 /* redeyeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D850D7A255355E8007961B2 /* redeyeTests.swift */; };
-		5D850D86255355E8007961B2 /* redeyeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D850D85255355E8007961B2 /* redeyeUITests.swift */; };
 		BA110003BA110003BA110003 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = BA110002BA110002BA110002 /* Sparkle */; };
 		BA110005BA110005BA110005 /* AboutWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA110004BA110004BA110004 /* AboutWindowController.swift */; };
 		BA110007BA110007BA110007 /* LoginItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA110006BA110006BA110006 /* LoginItemManager.swift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		5D850D77255355E8007961B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5D850D59255355E5007961B2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5D850D60255355E6007961B2;
-			remoteInfo = redeye;
-		};
-		5D850D82255355E8007961B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5D850D59255355E5007961B2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5D850D60255355E6007961B2;
-			remoteInfo = redeye;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		5D850D61255355E6007961B2 /* redeye.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = redeye.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -55,12 +36,6 @@
 		5D850D6E255355E8007961B2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		5D850D70255355E8007961B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D850D71255355E8007961B2 /* redeye.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = redeye.entitlements; sourceTree = "<group>"; };
-		5D850D76255355E8007961B2 /* redeyeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = redeyeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5D850D7A255355E8007961B2 /* redeyeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = redeyeTests.swift; sourceTree = "<group>"; };
-		5D850D7C255355E8007961B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5D850D81255355E8007961B2 /* redeyeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = redeyeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5D850D85255355E8007961B2 /* redeyeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = redeyeUITests.swift; sourceTree = "<group>"; };
-		5D850D87255355E8007961B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,20 +47,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5D850D73255355E8007961B2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5D850D7E255355E8007961B2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -93,8 +54,6 @@
 			isa = PBXGroup;
 			children = (
 				5D850D63255355E6007961B2 /* redeye */,
-				5D850D79255355E8007961B2 /* redeyeTests */,
-				5D850D84255355E8007961B2 /* redeyeUITests */,
 				5D850D62255355E6007961B2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,8 +62,6 @@
 			isa = PBXGroup;
 			children = (
 				5D850D61255355E6007961B2 /* redeye.app */,
-				5D850D76255355E8007961B2 /* redeyeTests.xctest */,
-				5D850D81255355E8007961B2 /* redeyeUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -137,24 +94,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		5D850D79255355E8007961B2 /* redeyeTests */ = {
-			isa = PBXGroup;
-			children = (
-				5D850D7A255355E8007961B2 /* redeyeTests.swift */,
-				5D850D7C255355E8007961B2 /* Info.plist */,
-			);
-			path = redeyeTests;
-			sourceTree = "<group>";
-		};
-		5D850D84255355E8007961B2 /* redeyeUITests */ = {
-			isa = PBXGroup;
-			children = (
-				5D850D85255355E8007961B2 /* redeyeUITests.swift */,
-				5D850D87255355E8007961B2 /* Info.plist */,
-			);
-			path = redeyeUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -178,42 +117,6 @@
 			productReference = 5D850D61255355E6007961B2 /* redeye.app */;
 			productType = "com.apple.product-type.application";
 		};
-		5D850D75255355E8007961B2 /* redeyeTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5D850D8D255355E8007961B2 /* Build configuration list for PBXNativeTarget "redeyeTests" */;
-			buildPhases = (
-				5D850D72255355E8007961B2 /* Sources */,
-				5D850D73255355E8007961B2 /* Frameworks */,
-				5D850D74255355E8007961B2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				5D850D78255355E8007961B2 /* PBXTargetDependency */,
-			);
-			name = redeyeTests;
-			productName = redeyeTests;
-			productReference = 5D850D76255355E8007961B2 /* redeyeTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		5D850D80255355E8007961B2 /* redeyeUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5D850D90255355E8007961B2 /* Build configuration list for PBXNativeTarget "redeyeUITests" */;
-			buildPhases = (
-				5D850D7D255355E8007961B2 /* Sources */,
-				5D850D7E255355E8007961B2 /* Frameworks */,
-				5D850D7F255355E8007961B2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				5D850D83255355E8007961B2 /* PBXTargetDependency */,
-			);
-			name = redeyeUITests;
-			productName = redeyeUITests;
-			productReference = 5D850D81255355E8007961B2 /* redeyeUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -225,14 +128,6 @@
 				TargetAttributes = {
 					5D850D60255355E6007961B2 = {
 						CreatedOnToolsVersion = 12.1;
-					};
-					5D850D75255355E8007961B2 = {
-						CreatedOnToolsVersion = 12.1;
-						TestTargetID = 5D850D60255355E6007961B2;
-					};
-					5D850D80255355E8007961B2 = {
-						CreatedOnToolsVersion = 12.1;
-						TestTargetID = 5D850D60255355E6007961B2;
 					};
 				};
 			};
@@ -253,8 +148,6 @@
 			projectRoot = "";
 			targets = (
 				5D850D60255355E6007961B2 /* redeye */,
-				5D850D75255355E8007961B2 /* redeyeTests */,
-				5D850D80255355E8007961B2 /* redeyeUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -267,20 +160,6 @@
 				5D850D6F255355E8007961B2 /* Main.storyboard in Resources */,
 				5D850D6C255355E8007961B2 /* Preview Assets.xcassets in Resources */,
 				5D850D69255355E8007961B2 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5D850D74255355E8007961B2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5D850D7F255355E8007961B2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,36 +181,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5D850D72255355E8007961B2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5D850D7B255355E8007961B2 /* redeyeTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5D850D7D255355E8007961B2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5D850D86255355E8007961B2 /* redeyeUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		5D850D78255355E8007961B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5D850D60255355E6007961B2 /* redeye */;
-			targetProxy = 5D850D77255355E8007961B2 /* PBXContainerItemProxy */;
-		};
-		5D850D83255355E8007961B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5D850D60255355E6007961B2 /* redeye */;
-			targetProxy = 5D850D82255355E8007961B2 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		5D850D6D255355E8007961B2 /* Main.storyboard */ = {
@@ -508,90 +358,6 @@
 			};
 			name = Release;
 		};
-		5D850D8E255355E8007961B2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = YWE26KG9UB;
-				INFOPLIST_FILE = redeyeTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = walkersutton.redeyeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/redeye.app/Contents/MacOS/redeye";
-			};
-			name = Debug;
-		};
-		5D850D8F255355E8007961B2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = YWE26KG9UB;
-				INFOPLIST_FILE = redeyeTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = walkersutton.redeyeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/redeye.app/Contents/MacOS/redeye";
-			};
-			name = Release;
-		};
-		5D850D91255355E8007961B2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = YWE26KG9UB;
-				INFOPLIST_FILE = redeyeUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = walkersutton.redeyeUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = redeye;
-			};
-			name = Debug;
-		};
-		5D850D92255355E8007961B2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = YWE26KG9UB;
-				INFOPLIST_FILE = redeyeUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = walkersutton.redeyeUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = redeye;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -609,24 +375,6 @@
 			buildConfigurations = (
 				5D850D8B255355E8007961B2 /* Debug */,
 				5D850D8C255355E8007961B2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		5D850D8D255355E8007961B2 /* Build configuration list for PBXNativeTarget "redeyeTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				5D850D8E255355E8007961B2 /* Debug */,
-				5D850D8F255355E8007961B2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		5D850D90255355E8007961B2 /* Build configuration list for PBXNativeTarget "redeyeUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				5D850D91255355E8007961B2 /* Debug */,
-				5D850D92255355E8007961B2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
