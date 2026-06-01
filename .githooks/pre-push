@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "→ xcodebuild (Debug, no signing)"
+xcodebuild -scheme redeye \
+  -configuration Debug \
+  -derivedDataPath build \
+  CODE_SIGNING_ALLOWED=NO \
+  -quiet

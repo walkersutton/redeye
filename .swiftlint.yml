@@ -1,0 +1,13 @@
+excluded:
+  - build/
+
+disabled_rules:
+  - colon        # aligned properties in RDToken are intentional
+  - file_length  # PreferencesWindowController is intentionally large
+
+identifier_name:
+  excluded: [t, v, b, ps, id]
+
+line_length:
+  warning: 150
+  error: 200

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=d | grep '\.swift$' || true)
+[ -z "$STAGED" ] && exit 0
+
+if ! command -v swiftformat &>/dev/null; then
+  echo "error: swiftformat not found — run 'make setup'" >&2
+  exit 1
+fi
+if ! command -v swiftlint &>/dev/null; then
+  echo "error: swiftlint not found — run 'make setup'" >&2
+  exit 1
+fi
+
+echo "→ swiftformat"
+echo "$STAGED" | xargs swiftformat --quiet
+
+echo "→ swiftlint"
+if ! echo "$STAGED" | xargs swiftlint lint --quiet; then
+  echo "error: swiftlint found violations — fix them and re-stage" >&2
+  exit 1
+fi
+
+# Re-stage files that swiftformat modified
+echo "$STAGED" | xargs git add

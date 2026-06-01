@@ -2,9 +2,8 @@ import Cocoa
 import Combine
 import Sparkle
 
-@NSApplicationMain
+@main
 class AppDelegate: NSObject, NSApplicationDelegate {
-
     private var statusItem: NSStatusItem!
     private let batteryMonitor = BatteryMonitor()
     private let overlayManager = OverlayManager()
@@ -18,7 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var lowBatteryPreviewTimer: Timer?
     private var lowBatteryPreviewPercentage = 20
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    func applicationDidFinishLaunching(_: Notification) {
         let showIcon = UserDefaults.standard.object(forKey: Preferences.showMenuBarIconKey) as? Bool ?? true
         NSApp.setActivationPolicy(showIcon ? .accessory : .regular)
         buildStatusItem()
@@ -136,7 +135,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 },
                 onCheckForUpdates: { [weak self] in
                     guard let self else { return }
-                    self.updaterController.checkForUpdates(self.settingsController)
+                    updaterController.checkForUpdates(settingsController)
                 }
             )
         }
@@ -145,6 +144,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    @objc private func openPreferences() { openSettings(tab: .general) }
-    @objc private func openAbout()       { openSettings(tab: .about) }
+    @objc private func openPreferences() {
+        openSettings(tab: .general)
+    }
+
+    @objc private func openAbout() {
+        openSettings(tab: .about)
+    }
 }

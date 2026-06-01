@@ -26,10 +26,11 @@ Download the latest release from the [Releases](../../releases) page, unzip, and
 ## Development
 
 ```sh
-make preview
+make setup   # install swiftlint + swiftformat, activate git hooks
+make preview # kill any running redeye, build Release, open the app
 ```
 
-Kills any running `redeye` process, builds a Release binary into `build/`, and opens the fresh app.
+`make setup` only needs to be run once per clone. It installs the required tools via Homebrew and points git at the `.githooks/` directory, which runs SwiftFormat + SwiftLint on commit and a Debug build on push.
 
 ## Publishing
 

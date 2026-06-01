@@ -75,12 +75,12 @@ class OverlayManager: NSObject {
         if alpha > 0 {
             windows.forEach { $0.orderFrontRegardless() }
         }
-        NSAnimationContext.runAnimationGroup({ ctx in
+        NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = animated ? 2.0 : 0
             ctx.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             self.windows.forEach { $0.animator().alphaValue = alpha }
-        }, completionHandler: {
+        } completionHandler: {
             if alpha == 0 { self.windows.forEach { $0.orderOut(nil) } }
-        })
+        }
     }
 }

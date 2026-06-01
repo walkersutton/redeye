@@ -1,6 +1,6 @@
 import Cocoa
-import SwiftUI
 import Sparkle
+import SwiftUI
 
 // MARK: - Constants
 
@@ -30,7 +30,7 @@ class SettingsWindowController: NSWindowController {
     private let state = SettingsState()
 
     init(
-        overlayManager: OverlayManager,
+        overlayManager _: OverlayManager,
         updaterController: SPUStandardUpdaterController,
         onShowMenuBarIconChanged: @escaping (Bool) -> Void,
         onLowBatteryPreviewToggle: @escaping () -> Void,
@@ -58,7 +58,10 @@ class SettingsWindowController: NSWindowController {
         window.center()
     }
 
-    required init?(coder: NSCoder) { fatalError() }
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError()
+    }
 
     func select(_ tab: SettingsTab) {
         state.selectedTab = tab
@@ -76,9 +79,9 @@ private extension Color {
     init(hex: UInt32) {
         self.init(
             .sRGB,
-            red:   Double((hex >> 16) & 0xff) / 255,
-            green: Double((hex >>  8) & 0xff) / 255,
-            blue:  Double( hex        & 0xff) / 255
+            red: Double((hex >> 16) & 0xff) / 255,
+            green: Double((hex >> 8) & 0xff) / 255,
+            blue: Double(hex & 0xff) / 255
         )
     }
 }
@@ -86,22 +89,63 @@ private extension Color {
 private struct RDToken {
     let dark: Bool
 
-    var sidebarBg:     Color { dark ? Color(hex: 0x232326) : Color(hex: 0xe7e7ea) }
-    var contentBg:     Color { dark ? Color(hex: 0x1c1c1e) : Color(hex: 0xf4f4f6) }
-    var cardBg:        Color { dark ? Color(hex: 0x2b2b2e) : .white }
-    var divider:       Color { dark ? .white.opacity(0.085) : .black.opacity(0.085) }
-    var text:          Color { dark ? .white : Color(hex: 0x1b1b1f) }
-    var text2:         Color { dark ? Color(red: 0.922, green: 0.922, blue: 0.961).opacity(0.62)
-                                    : Color(red: 0.235, green: 0.235, blue: 0.263).opacity(0.62) }
-    var text3:         Color { dark ? Color(red: 0.922, green: 0.922, blue: 0.961).opacity(0.34)
-                                    : Color(red: 0.235, green: 0.235, blue: 0.263).opacity(0.40) }
-    var selBg:         Color { dark ? .white.opacity(0.10) : .black.opacity(0.075) }
-    var controlBg:     Color { dark ? Color(hex: 0x3a3a3d) : .white }
-    var controlBorder: Color { dark ? .white.opacity(0.10) : .black.opacity(0.14) }
-    var accent:        Color { dark ? Color(hex: 0xff453a) : Color(hex: 0xff3b30) }
-    var topEdge:       Color { dark ? .white.opacity(0.06) : .white.opacity(0.70) }
-    var pillBg:        Color { dark ? .white.opacity(0.07) : .black.opacity(0.04) }
-    var pillBorder:    Color { dark ? .white.opacity(0.10) : .black.opacity(0.08) }
+    var sidebarBg: Color {
+        dark ? Color(hex: 0x232326) : Color(hex: 0xe7e7ea)
+    }
+
+    var contentBg: Color {
+        dark ? Color(hex: 0x1c1c1e) : Color(hex: 0xf4f4f6)
+    }
+
+    var cardBg: Color {
+        dark ? Color(hex: 0x2b2b2e) : .white
+    }
+
+    var divider: Color {
+        dark ? .white.opacity(0.085) : .black.opacity(0.085)
+    }
+
+    var text: Color {
+        dark ? .white : Color(hex: 0x1b1b1f)
+    }
+
+    var text2: Color {
+        dark ? Color(red: 0.922, green: 0.922, blue: 0.961).opacity(0.62)
+            : Color(red: 0.235, green: 0.235, blue: 0.263).opacity(0.62)
+    }
+
+    var text3: Color {
+        dark ? Color(red: 0.922, green: 0.922, blue: 0.961).opacity(0.34)
+            : Color(red: 0.235, green: 0.235, blue: 0.263).opacity(0.40)
+    }
+
+    var selBg: Color {
+        dark ? .white.opacity(0.10) : .black.opacity(0.075)
+    }
+
+    var controlBg: Color {
+        dark ? Color(hex: 0x3a3a3d) : .white
+    }
+
+    var controlBorder: Color {
+        dark ? .white.opacity(0.10) : .black.opacity(0.14)
+    }
+
+    var accent: Color {
+        dark ? Color(hex: 0xff453a) : Color(hex: 0xff3b30)
+    }
+
+    var topEdge: Color {
+        dark ? .white.opacity(0.06) : .white.opacity(0.70)
+    }
+
+    var pillBg: Color {
+        dark ? .white.opacity(0.07) : .black.opacity(0.04)
+    }
+
+    var pillBorder: Color {
+        dark ? .white.opacity(0.10) : .black.opacity(0.08)
+    }
 }
 
 // MARK: - Root layout
@@ -141,8 +185,8 @@ private struct SidebarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            SidebarNavRow(label: "General", icon: "gearshape",   isSelected: selected == .general, t: t) { selected = .general }
-            SidebarNavRow(label: "About",   icon: "info.circle", isSelected: selected == .about,   t: t) { selected = .about   }
+            SidebarNavRow(label: "General", icon: "gearshape", isSelected: selected == .general, t: t) { selected = .general }
+            SidebarNavRow(label: "About", icon: "info.circle", isSelected: selected == .about, t: t) { selected = .about }
             Spacer()
         }
         .padding(.top, 44)
@@ -215,7 +259,7 @@ private struct ContentArea: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .top)    { t.topEdge.frame(height: 1) }
+        .overlay(alignment: .top) { t.topEdge.frame(height: 1) }
         .overlay(alignment: .leading) { t.divider.frame(width: 1) }
         .background(t.contentBg)
     }
@@ -441,6 +485,7 @@ private struct RDSectionLabel: View {
     init(_ title: String, spaced: Bool = false, t: RDToken) {
         self.title = title; self.spaced = spaced; self.t = t
     }
+
     var body: some View {
         Text(title)
             .font(.system(size: 15, weight: .semibold))
@@ -474,13 +519,14 @@ private struct RDCard<Content: View>: View {
 
 private struct RDRow<Control: View>: View {
     let label: String
-    var description: String? = nil
+    var description: String?
     let t: RDToken
     @ViewBuilder let control: () -> Control
     init(_ label: String, description: String? = nil, t: RDToken,
          @ViewBuilder control: @escaping () -> Control) {
         self.label = label; self.description = description; self.t = t; self.control = control
     }
+
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {

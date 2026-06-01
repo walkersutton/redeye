@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import IOKit.ps
-import Combine
 
 struct BatteryState {
     let percentage: Int?

@@ -1,4 +1,8 @@
-.PHONY: kill preview publish publish-patch publish-minor publish-major release-patch release-minor release-major
+.PHONY: setup kill preview publish publish-patch publish-minor publish-major release-patch release-minor release-major
+
+setup:
+	brew install swiftlint swiftformat
+	git config core.hooksPath .githooks
 
 kill:
 	scripts/kill.sh
