@@ -3,6 +3,8 @@ import Cocoa
 class OverlayManager: NSObject {
     private var windows: [OverlayWindow] = []
     private var currentAlpha: CGFloat = 0
+    private var lastState: BatteryState?
+    private var isPreviewing = false
 
     override init() {
         super.init()
@@ -30,9 +32,31 @@ class OverlayManager: NSObject {
     }
 
     func update(_ state: BatteryState) {
-        let threshold = UserDefaults.standard.integer(forKey: Preferences.thresholdKey)
-        let rawMax = UserDefaults.standard.integer(forKey: Preferences.maxIntensityKey)
-        let maxAlpha = CGFloat(rawMax) / 100.0
+        lastState = state
+        guard !isPreviewing else { return }
+        applyState(state)
+    }
+
+    func updateLowBatteryPreview(percentage: Int, startPercentage: Int = 20) {
+        isPreviewing = true
+
+        let start = max(startPercentage, 1)
+        let pct = min(max(percentage, 0), start)
+        let maxAlpha = CGFloat(Preferences.maxIntensity) / 100.0
+        let alpha = CGFloat(start - pct) / CGFloat(start) * maxAlpha
+
+        currentAlpha = alpha
+        setAlpha(alpha, animated: false)
+    }
+
+    func endPreview() {
+        isPreviewing = false
+        if let state = lastState { applyState(state) }
+    }
+
+    private func applyState(_ state: BatteryState) {
+        let threshold = Preferences.threshold
+        let maxAlpha = CGFloat(Preferences.maxIntensity) / 100.0
 
         let target: CGFloat
         if let pct = state.percentage, pct <= threshold, !state.isCharging {

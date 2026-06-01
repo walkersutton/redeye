@@ -1,5 +1,6 @@
 import Cocoa
 import Combine
+import Sparkle
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -7,16 +8,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private let batteryMonitor = BatteryMonitor()
     private let overlayManager = OverlayManager()
-    private var preferencesController: PreferencesWindowController?
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
+    private var settingsController: SettingsWindowController?
     private var cancellables = Set<AnyCancellable>()
-
-    private let batteryMenuItem = NSMenuItem()
-    private let overlayMenuItem = NSMenuItem()
+    private var lowBatteryPreviewTimer: Timer?
+    private var lowBatteryPreviewPercentage = 20
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
-        registerDefaults()
+        let showIcon = UserDefaults.standard.object(forKey: Preferences.showMenuBarIconKey) as? Bool ?? true
+        NSApp.setActivationPolicy(showIcon ? .accessory : .regular)
         buildStatusItem()
+        statusItem.isVisible = showIcon
 
         batteryMonitor.$state
             .receive(on: DispatchQueue.main)
@@ -28,109 +34,117 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Setup
 
-    private func registerDefaults() {
-        UserDefaults.standard.register(defaults: [
-            Preferences.thresholdKey: Preferences.defaultThreshold,
-            Preferences.maxIntensityKey: Preferences.defaultMaxIntensity,
-        ])
-    }
-
     private func buildStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
-        if let btn = statusItem.button {
-            btn.image = NSImage(named: "Icon")
-            btn.image?.isTemplate = true
-            btn.imagePosition = .imageLeft
-        }
-
-        batteryMenuItem.isEnabled = false
-        overlayMenuItem.isEnabled = false
-
-        let menu = NSMenu()
-        menu.addItem(batteryMenuItem)
-        menu.addItem(.separator())
-        menu.addItem(overlayMenuItem)
-        menu.addItem(.separator())
+        configureStatusButton()
 
         let prefsItem = NSMenuItem(title: "Preferences…", action: #selector(openPreferences), keyEquivalent: ",")
         prefsItem.target = self
-        menu.addItem(prefsItem)
 
-        menu.addItem(.separator())
-
-        let aboutItem = NSMenuItem(title: "About Redeye", action: #selector(openAbout), keyEquivalent: "")
+        let aboutItem = NSMenuItem(title: "About redeye", action: #selector(openAbout), keyEquivalent: "")
         aboutItem.target = self
-        menu.addItem(aboutItem)
 
-        menu.addItem(NSMenuItem(title: "Quit Redeye", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        let menu = NSMenu()
+        menu.addItem(prefsItem)
+        menu.addItem(.separator())
+        menu.addItem(aboutItem)
+        menu.addItem(NSMenuItem(title: "Quit redeye", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         statusItem.menu = menu
+    }
+
+    // MARK: - Preferences
+
+    func applyMenuBarVisibility(_ show: Bool) {
+        statusItem?.isVisible = show
+        NSApp.setActivationPolicy(show ? .accessory : .regular)
     }
 
     // MARK: - Battery Updates
 
     private func apply(_ state: BatteryState) {
-        updateMenuBar(state)
         overlayManager.update(state)
     }
 
-    private func updateMenuBar(_ state: BatteryState) {
+    private func configureStatusButton() {
         guard let btn = statusItem.button else { return }
-        let threshold = UserDefaults.standard.integer(forKey: Preferences.thresholdKey)
 
-        if let pct = state.percentage {
-            btn.title = "  \(pct)%"
-
-            var info = "Battery: \(pct)%"
-            if state.isCharging {
-                info += "  ⚡"
-            } else if let mins = state.timeToEmptyMinutes {
-                info += "  " + minutesFormatted(mins)
-            }
-            batteryMenuItem.title = info
-
-            let isActive = pct <= threshold && !state.isCharging
-            overlayMenuItem.attributedTitle = statusLabel(
-                isActive ? "Red Eye: Active" : "Red Eye: Inactive",
-                dotColor: isActive ? .systemRed : .tertiaryLabelColor
-            )
-        } else {
-            btn.title = ""
-            batteryMenuItem.title = "Battery: —"
-            overlayMenuItem.attributedTitle = statusLabel("Red Eye: Inactive", dotColor: .tertiaryLabelColor)
-        }
-    }
-
-    private func minutesFormatted(_ minutes: Int) -> String {
-        let h = minutes / 60, m = minutes % 60
-        return h > 0 ? "\(h)h \(m)m remaining" : "\(m)m remaining"
-    }
-
-    private func statusLabel(_ text: String, dotColor: NSColor) -> NSAttributedString {
-        let s = NSMutableAttributedString(
-            string: "● ",
-            attributes: [.foregroundColor: dotColor, .font: NSFont.systemFont(ofSize: 10)]
-        )
-        s.append(NSAttributedString(
-            string: text,
-            attributes: [.font: NSFont.menuFont(ofSize: 0)]
-        ))
-        return s
+        let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        btn.image = NSImage(systemSymbolName: "eye.fill", accessibilityDescription: "redeye")?
+            .withSymbolConfiguration(config)
+        btn.image?.isTemplate = true
+        btn.title = ""
+        btn.imagePosition = .imageOnly
     }
 
     // MARK: - Actions
 
-    @objc private func openPreferences() {
-        if preferencesController == nil {
-            preferencesController = PreferencesWindowController()
+    private func toggleLowBatteryPreview() {
+        if lowBatteryPreviewTimer != nil {
+            stopLowBatteryPreview()
+        } else {
+            startLowBatteryPreview()
         }
-        preferencesController?.showWindow(nil)
+    }
+
+    private func startLowBatteryPreview() {
+        lowBatteryPreviewPercentage = 20
+        showLowBatteryPreviewFrame()
+        settingsController?.updateLowBatteryPreview(isPreviewing: true, percentage: lowBatteryPreviewPercentage)
+
+        let timer = Timer(timeInterval: 0.2, repeats: true) { [weak self] timer in
+            guard let self else {
+                timer.invalidate()
+                return
+            }
+
+            lowBatteryPreviewPercentage -= 1
+            guard lowBatteryPreviewPercentage >= 0 else {
+                stopLowBatteryPreview()
+                return
+            }
+
+            showLowBatteryPreviewFrame()
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        lowBatteryPreviewTimer = timer
+    }
+
+    private func showLowBatteryPreviewFrame() {
+        overlayManager.updateLowBatteryPreview(percentage: lowBatteryPreviewPercentage)
+        settingsController?.updateLowBatteryPreview(isPreviewing: true, percentage: lowBatteryPreviewPercentage)
+    }
+
+    private func stopLowBatteryPreview() {
+        lowBatteryPreviewTimer?.invalidate()
+        lowBatteryPreviewTimer = nil
+        settingsController?.updateLowBatteryPreview(isPreviewing: false)
+        overlayManager.endPreview()
+    }
+
+    private func openSettings(tab: SettingsTab = .general) {
+        if settingsController == nil {
+            settingsController = SettingsWindowController(
+                overlayManager: overlayManager,
+                updaterController: updaterController,
+                onShowMenuBarIconChanged: { [weak self] show in
+                    self?.applyMenuBarVisibility(show)
+                },
+                onLowBatteryPreviewToggle: { [weak self] in
+                    self?.toggleLowBatteryPreview()
+                },
+                onCheckForUpdates: { [weak self] in
+                    guard let self else { return }
+                    self.updaterController.checkForUpdates(self.settingsController)
+                }
+            )
+        }
+        settingsController?.select(tab)
+        settingsController?.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    @objc private func openAbout() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.orderFrontStandardAboutPanel(nil)
-    }
+    @objc private func openPreferences() { openSettings(tab: .general) }
+    @objc private func openAbout()       { openSettings(tab: .about) }
 }

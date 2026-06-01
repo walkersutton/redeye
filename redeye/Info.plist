@@ -28,5 +28,13 @@
 	<string>NSApplication</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2024 Walker Sutton</string>
+	<key>SUPublicEDKey</key>
+	<string>npD0fgzJ6be1ZF7G4bF88Jgpsz3kD9o7NQfzvZ6unFc=</string>
+	<key>SUFeedURL</key>
+	<string>https://github.com/walkersutton/redeye/releases/latest/download/appcast.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 </dict>
 </plist>
