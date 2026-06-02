@@ -22,7 +22,7 @@ When your battery drops below 10%, redeye fades a red overlay across all connect
 
 ## Install
 
-Download the latest release dmg from the [Releases](../../releases) page and drag `redeye.app` to your Applications folder.
+Download the latest `redeye.dmg` from the [Releases](../../releases) page and drag app to your Applications folder.
 
 > **Note:** Release builds are ad-hoc signed (not notarized). On first launch, go to **System Setting** -> **Privacy & Security** -> **Open Anyway**
 > 
