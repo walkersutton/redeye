@@ -18,7 +18,7 @@ When your battery drops below ~10%, redeye fades a red overlay across all connec
 - Multi-display support
 - Launch at login
 - Auto-updates via Sparkle
-- Optional menu bar icon (hide it and use the dock instead)
+- Optional menu bar icon
 
 ## Install
 
