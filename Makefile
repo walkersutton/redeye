@@ -1,4 +1,4 @@
-.PHONY: setup kill preview publish publish-patch publish-minor publish-major release-patch release-minor release-major
+.PHONY: setup kill preview publish publish-patch publish-minor publish-major release-patch release-minor release-major release-stats
 
 setup:
 	brew install swiftlint swiftformat
@@ -30,3 +30,6 @@ release-minor:
 
 release-major:
 	scripts/release.sh major
+
+release-stats:
+	scripts/release-stats.sh

@@ -5,15 +5,30 @@ import SwiftUI
 // MARK: - Constants
 
 enum Preferences {
-    static let threshold = 10
-    static let maxIntensity = 69
+    static let defaultThreshold = 10
+    static let defaultPeakOpacity = 0.69
+    static let thresholdRange = 3 ... 20
+    static let peakOpacityRange = 0.5 ... 1.0
+    static let thresholdKey = "lowBatteryThreshold"
+    static let peakOpacityKey = "peakOpacity"
+    static let didApplyInstallDefaultsKey = "didApplyInstallDefaults"
     static let showMenuBarIconKey = "showMenuBarIcon"
+
+    static var threshold: Int {
+        let value = UserDefaults.standard.object(forKey: thresholdKey) as? Int ?? defaultThreshold
+        return min(max(value, thresholdRange.lowerBound), thresholdRange.upperBound)
+    }
+
+    static var peakOpacity: Double {
+        let value = UserDefaults.standard.object(forKey: peakOpacityKey) as? Double ?? defaultPeakOpacity
+        return min(max(value, peakOpacityRange.lowerBound), peakOpacityRange.upperBound)
+    }
 }
 
 // MARK: - Tab
 
 enum SettingsTab: String, Hashable {
-    case general, about
+    case general, overlay, about
 }
 
 // MARK: - Observable state
@@ -21,7 +36,7 @@ enum SettingsTab: String, Hashable {
 class SettingsState: ObservableObject {
     @Published var selectedTab: SettingsTab = .general
     @Published var isLowBatteryPreviewing = false
-    @Published var lowBatteryPreviewPercentage = 20
+    @Published var lowBatteryPreviewPercentage = Preferences.threshold
 }
 
 // MARK: - Window controller
@@ -36,7 +51,7 @@ class SettingsWindowController: NSWindowController {
         onLowBatteryPreviewToggle: @escaping () -> Void,
         onCheckForUpdates: @escaping () -> Void
     ) {
-        let window = NSWindow(
+        let window = SettingsWindow(
             contentRect: NSRect(x: 0, y: 0, width: 700, height: 550),
             styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
@@ -67,9 +82,21 @@ class SettingsWindowController: NSWindowController {
         state.selectedTab = tab
     }
 
-    func updateLowBatteryPreview(isPreviewing: Bool, percentage: Int = 20) {
+    func updateLowBatteryPreview(isPreviewing: Bool, percentage: Int = Preferences.threshold) {
         state.isLowBatteryPreviewing = isPreviewing
         state.lowBatteryPreviewPercentage = percentage
+    }
+}
+
+private class SettingsWindow: NSWindow {
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+           event.charactersIgnoringModifiers?.lowercased() == "w" {
+            performClose(nil)
+            return true
+        }
+
+        return super.performKeyEquivalent(with: event)
     }
 }
 
@@ -186,6 +213,7 @@ private struct SidebarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             SidebarNavRow(label: "General", icon: "gearshape", isSelected: selected == .general, t: t) { selected = .general }
+            SidebarNavRow(label: "Overlay", icon: "slider.horizontal.3", isSelected: selected == .overlay, t: t) { selected = .overlay }
             SidebarNavRow(label: "About", icon: "info.circle", isSelected: selected == .about, t: t) { selected = .about }
             Spacer()
         }
@@ -241,11 +269,15 @@ private struct ContentArea: View {
             switch state.selectedTab {
             case .general:
                 GeneralTab(
-                    state: state,
                     updaterController: updaterController,
                     onShowMenuBarIconChanged: onShowMenuBarIconChanged,
-                    onLowBatteryPreviewToggle: onLowBatteryPreviewToggle,
                     onCheckForUpdates: onCheckForUpdates,
+                    t: t
+                )
+            case .overlay:
+                OverlayTab(
+                    state: state,
+                    onLowBatteryPreviewToggle: onLowBatteryPreviewToggle,
                     t: t
                 )
             case .about:
@@ -306,26 +338,20 @@ private struct AppPill: View {
 // MARK: - General tab
 
 private struct GeneralTab: View {
-    @ObservedObject var state: SettingsState
     @AppStorage(Preferences.showMenuBarIconKey) private var showMenuBarIcon = true
     @State private var launchAtLogin = LoginItemManager.isEnabled
     @State private var autoUpdates: Bool
     let updaterController: SPUStandardUpdaterController
     let onShowMenuBarIconChanged: (Bool) -> Void
-    let onLowBatteryPreviewToggle: () -> Void
     let onCheckForUpdates: () -> Void
     let t: RDToken
 
-    init(state: SettingsState,
-         updaterController: SPUStandardUpdaterController,
+    init(updaterController: SPUStandardUpdaterController,
          onShowMenuBarIconChanged: @escaping (Bool) -> Void,
-         onLowBatteryPreviewToggle: @escaping () -> Void,
          onCheckForUpdates: @escaping () -> Void,
          t: RDToken) {
-        self.state = state
         self.updaterController = updaterController
         self.onShowMenuBarIconChanged = onShowMenuBarIconChanged
-        self.onLowBatteryPreviewToggle = onLowBatteryPreviewToggle
         self.onCheckForUpdates = onCheckForUpdates
         self.t = t
         _autoUpdates = State(initialValue: updaterController.updater.automaticallyChecksForUpdates)
@@ -350,25 +376,6 @@ private struct GeneralTab: View {
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .onChange(of: showMenuBarIcon) { val in onShowMenuBarIconChanged(val) }
-                    }
-                }
-
-                RDSectionLabel("Preview", spaced: true, t: t)
-                RDCard(t: t) {
-                    RDRow("Low battery",
-                          description: "See the red screen tint before your battery actually runs low.",
-                          t: t) {
-                        HStack(spacing: 10) {
-                            if state.isLowBatteryPreviewing {
-                                Text("\(state.lowBatteryPreviewPercentage)%")
-                                    .font(.system(size: 13, weight: .medium, design: .monospaced))
-                                    .foregroundStyle(t.text2)
-                            }
-                            Button(state.isLowBatteryPreviewing ? "Stop preview" : "Preview low battery") {
-                                onLowBatteryPreviewToggle()
-                            }
-                            .buttonStyle(RDButtonStyle(t: t))
-                        }
                     }
                 }
 
@@ -398,10 +405,83 @@ private struct GeneralTab: View {
     }
 }
 
+// MARK: - Overlay tab
+
+private struct OverlayTab: View {
+    @ObservedObject var state: SettingsState
+    @AppStorage(Preferences.thresholdKey) private var lowBatteryThreshold = Preferences.defaultThreshold
+    @AppStorage(Preferences.peakOpacityKey) private var peakOpacity = Preferences.defaultPeakOpacity
+    let onLowBatteryPreviewToggle: () -> Void
+    let t: RDToken
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                RDSectionLabel("Battery Overlay", t: t)
+                RDCard(t: t) {
+                    RDRow("Start tinting",
+                          description: "Battery percentage where the red overlay begins.",
+                          t: t) {
+                        RDIntValueSlider(
+                            value: $lowBatteryThreshold,
+                            range: Preferences.thresholdRange,
+                            resetValue: Preferences.defaultThreshold,
+                            suffix: "%",
+                            t: t
+                        )
+                    }
+                    RDDivider(t: t)
+                    RDRow("Peak opacity",
+                          description: "Maximum red overlay strength at empty battery.",
+                          t: t) {
+                        RDDoubleValueSlider(
+                            value: $peakOpacity,
+                            range: Preferences.peakOpacityRange,
+                            resetValue: Preferences.defaultPeakOpacity,
+                            format: "%.2f",
+                            t: t
+                        )
+                    }
+                }
+
+                RDSectionLabel("Preview", spaced: true, t: t)
+                RDCard(t: t) {
+                    RDRow("Low battery",
+                          description: "See the red screen tint before your battery actually runs low.",
+                          t: t) {
+                        HStack(spacing: 10) {
+                            if state.isLowBatteryPreviewing {
+                                Text("\(state.lowBatteryPreviewPercentage)%")
+                                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                                    .foregroundStyle(t.text2)
+                            }
+                            Button(state.isLowBatteryPreviewing ? "Stop preview" : "Preview low battery") {
+                                onLowBatteryPreviewToggle()
+                            }
+                            .buttonStyle(RDButtonStyle(t: t))
+                        }
+                    }
+                }
+
+                Spacer(minLength: 24)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 56)
+            .padding(.bottom, 24)
+        }
+        .onAppear {
+            lowBatteryThreshold = Preferences.threshold
+            peakOpacity = Preferences.peakOpacity
+        }
+    }
+}
+
 // MARK: - About tab
 
 private struct AboutTab: View {
     let t: RDToken
+    private let githubURL = URL(string: "https://github.com/walkersutton/redeye?ref=redeye")!
+    private let authorURL = URL(string: "https://walkersutton.com?ref=redeye")!
 
     private var version: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -451,7 +531,7 @@ private struct AboutTab: View {
                 .frame(maxWidth: 290)
                 .padding(.top, 16)
 
-            Link("GitHub", destination: URL(string: "https://github.com/walkersutton/redeye")!)
+            Link("GitHub", destination: githubURL)
                 .foregroundStyle(t.accent)
                 .font(.system(size: 13))
                 .onHover { inside in
@@ -459,10 +539,16 @@ private struct AboutTab: View {
                 }
                 .padding(.top, 20)
 
-            Text("© 2024 Walker Sutton")
-                .font(.system(size: 12))
-                .foregroundStyle(t.text3)
-                .padding(.top, 26)
+            HStack(spacing: 0) {
+                Text("© 2024 ")
+                Link("Walker Sutton", destination: authorURL)
+                    .onHover { inside in
+                        if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                    }
+            }
+            .font(.system(size: 12))
+            .foregroundStyle(t.text3)
+            .padding(.top, 26)
 
             Spacer()
         }
@@ -552,6 +638,147 @@ private struct RDDivider: View {
             .fill(t.divider)
             .frame(height: 1)
             .padding(.leading, 14)
+    }
+}
+
+private struct RDIntValueSlider: View {
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    let resetValue: Int
+    let suffix: String
+    let t: RDToken
+
+    private var doubleValue: Binding<Double> {
+        Binding(
+            get: { Double(value) },
+            set: { value = min(max(Int($0.rounded()), range.lowerBound), range.upperBound) }
+        )
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            RDSlider(
+                value: doubleValue,
+                range: Double(range.lowerBound) ... Double(range.upperBound),
+                step: 1,
+                resetValue: Double(resetValue),
+                t: t
+            )
+            .frame(width: 150)
+
+            Text("\(value)\(suffix)")
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                .foregroundStyle(t.text2)
+                .frame(width: 44, alignment: .trailing)
+        }
+    }
+}
+
+private struct RDDoubleValueSlider: View {
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let resetValue: Double
+    let format: String
+    let t: RDToken
+
+    private var clampedValue: Binding<Double> {
+        Binding(
+            get: { value },
+            set: { value = min(max($0, range.lowerBound), range.upperBound) }
+        )
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            RDSlider(
+                value: clampedValue,
+                range: range,
+                step: 0.01,
+                resetValue: resetValue,
+                t: t
+            )
+            .frame(width: 150)
+
+            Text(String(format: format, value))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                .foregroundStyle(t.text2)
+                .frame(width: 44, alignment: .trailing)
+        }
+    }
+}
+
+private struct RDSlider: View {
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let step: Double
+    let resetValue: Double
+    let t: RDToken
+    @State private var isDragging = false
+
+    private var progress: Double {
+        guard range.upperBound > range.lowerBound else { return 0 }
+        return min(max((value - range.lowerBound) / (range.upperBound - range.lowerBound), 0), 1)
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let knobSize = 15.0
+            let knobCenterX = progress * max(width - knobSize, 0) + knobSize / 2
+
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(t.dark ? Color.white.opacity(0.14) : Color.black.opacity(0.12))
+                    .frame(height: 5)
+                    .padding(.horizontal, knobSize / 2)
+
+                Capsule()
+                    .fill(t.accent)
+                    .frame(width: max(knobCenterX - knobSize / 2, 0), height: 5)
+                    .padding(.leading, knobSize / 2)
+
+                Circle()
+                    .fill(t.accent)
+                    .frame(width: knobSize, height: knobSize)
+                    .overlay {
+                        Circle().stroke(Color.white.opacity(t.dark ? 0.28 : 0.62), lineWidth: 1)
+                    }
+                    .shadow(color: .black.opacity(isDragging ? 0.20 : 0.12), radius: isDragging ? 3 : 1, x: 0, y: 1)
+                    .position(x: knobCenterX, y: geometry.size.height / 2)
+            }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { gesture in
+                        isDragging = true
+                        setValue(for: gesture.location.x, width: width, knobSize: knobSize)
+                    }
+                    .onEnded { _ in
+                        isDragging = false
+                    }
+            )
+            .simultaneousGesture(
+                TapGesture(count: 2)
+                    .onEnded {
+                        value = clampedSteppedValue(resetValue)
+                    }
+            )
+        }
+        .frame(height: 20)
+    }
+
+    private func setValue(for locationX: CGFloat, width: CGFloat, knobSize: CGFloat) {
+        let trackWidth = max(width - knobSize, 1)
+        let rawProgress = min(max((Double(locationX) - Double(knobSize / 2)) / Double(trackWidth), 0), 1)
+        let rawValue = range.lowerBound + rawProgress * (range.upperBound - range.lowerBound)
+        value = clampedSteppedValue(rawValue)
+    }
+
+    private func clampedSteppedValue(_ rawValue: Double) -> Double {
+        let clamped = min(max(rawValue, range.lowerBound), range.upperBound)
+        guard step > 0 else { return clamped }
+        let stepped = (clamped / step).rounded() * step
+        return min(max(stepped, range.lowerBound), range.upperBound)
     }
 }
 

@@ -10,7 +10,7 @@ struct RedeyeLogo: View {
                     LinearGradient(
                         colors: [
                             Color(red: 0.90, green: 0.12, blue: 0.12),
-                            Color(red: 0.50, green: 0.0, blue: 0.0),
+                            Color(red: 0.50, green: 0.0, blue: 0.0)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing

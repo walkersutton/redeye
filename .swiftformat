@@ -1,3 +1,4 @@
 --swiftversion 5.9
 --hexliteralcase lowercase
+--commas inline
 --disable wrapMultilineStatementBraces

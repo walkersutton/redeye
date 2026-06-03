@@ -15,7 +15,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsController: SettingsWindowController?
     private var cancellables = Set<AnyCancellable>()
     private var lowBatteryPreviewTimer: Timer?
-    private var lowBatteryPreviewPercentage = 20
+    private var lowBatteryPreviewPercentage = Double(Preferences.defaultThreshold)
+    private let lowBatteryPreviewFrameInterval = 1.0 / 30.0
+    private let lowBatteryPreviewDuration = 4.0
 
     func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
         openSettings()
@@ -24,7 +26,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_: Notification) {
         NSApp.mainMenu = nil
-        let showIcon = UserDefaults.standard.object(forKey: Preferences.showMenuBarIconKey) as? Bool ?? true
+        configureInstallDefaults()
+        let showIcon = UserDefaults.standard.bool(forKey: Preferences.showMenuBarIconKey)
         NSApp.setActivationPolicy(.accessory)
         buildStatusItem()
         statusItem.isVisible = showIcon
@@ -38,6 +41,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // MARK: - Setup
+
+    private func configureInstallDefaults() {
+        let defaults = UserDefaults.standard
+        let hadPersistentDefaults = Bundle.main.bundleIdentifier
+            .flatMap { defaults.persistentDomain(forName: $0) }?
+            .isEmpty == false
+
+        defaults.register(defaults: [
+            Preferences.thresholdKey: Preferences.defaultThreshold,
+            Preferences.peakOpacityKey: Preferences.defaultPeakOpacity,
+            Preferences.showMenuBarIconKey: true
+        ])
+
+        guard defaults.object(forKey: Preferences.didApplyInstallDefaultsKey) == nil else { return }
+
+        if !hadPersistentDefaults {
+            defaults.set(true, forKey: Preferences.showMenuBarIconKey)
+            updaterController.updater.automaticallyChecksForUpdates = true
+            LoginItemManager.setEnabled(true)
+        }
+
+        defaults.set(true, forKey: Preferences.didApplyInstallDefaultsKey)
+    }
 
     private func buildStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -99,17 +125,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func startLowBatteryPreview() {
-        lowBatteryPreviewPercentage = 20
+        lowBatteryPreviewPercentage = Double(Preferences.threshold)
         showLowBatteryPreviewFrame()
-        settingsController?.updateLowBatteryPreview(isPreviewing: true, percentage: lowBatteryPreviewPercentage)
+        settingsController?.updateLowBatteryPreview(isPreviewing: true, percentage: displayedLowBatteryPreviewPercentage)
 
-        let timer = Timer(timeInterval: 0.2, repeats: true) { [weak self] timer in
+        let decrement = Double(max(Preferences.threshold, 1)) * lowBatteryPreviewFrameInterval / lowBatteryPreviewDuration
+        let timer = Timer(timeInterval: lowBatteryPreviewFrameInterval, repeats: true) { [weak self] timer in
             guard let self else {
                 timer.invalidate()
                 return
             }
 
-            lowBatteryPreviewPercentage -= 1
+            lowBatteryPreviewPercentage -= decrement
             guard lowBatteryPreviewPercentage >= 0 else {
                 stopLowBatteryPreview()
                 return
@@ -123,7 +150,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showLowBatteryPreviewFrame() {
         overlayManager.updateLowBatteryPreview(percentage: lowBatteryPreviewPercentage)
-        settingsController?.updateLowBatteryPreview(isPreviewing: true, percentage: lowBatteryPreviewPercentage)
+        settingsController?.updateLowBatteryPreview(isPreviewing: true, percentage: displayedLowBatteryPreviewPercentage)
+    }
+
+    private var displayedLowBatteryPreviewPercentage: Int {
+        Int(ceil(max(lowBatteryPreviewPercentage, 0)))
     }
 
     private func stopLowBatteryPreview() {
