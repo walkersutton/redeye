@@ -10,7 +10,7 @@
 
 ## How it works
 
-When your battery drops below 10%, redeye fades a red overlay across all connected displays. The overlay intensifies as the battery drains further. Plugging in clears it immediately.
+When your battery drops below ~10%, redeye fades a red overlay across all connected displays. The overlay intensifies as the battery drains further. Plugging in clears it immediately.
 
 ## Features
 
