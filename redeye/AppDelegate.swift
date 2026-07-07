@@ -27,6 +27,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_: Notification) {
         NSApp.mainMenu = nil
         configureInstallDefaults()
+
+        if UserDefaults.standard.bool(forKey: Preferences.launchAtLoginKey) {
+            LoginItemManager.setEnabled(true)
+        }
+
         let showIcon = UserDefaults.standard.bool(forKey: Preferences.showMenuBarIconKey)
         NSApp.setActivationPolicy(.accessory)
         buildStatusItem()
@@ -51,7 +56,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         defaults.register(defaults: [
             Preferences.thresholdKey: Preferences.defaultThreshold,
             Preferences.peakOpacityKey: Preferences.defaultPeakOpacity,
-            Preferences.showMenuBarIconKey: true
+            Preferences.showMenuBarIconKey: true,
+            Preferences.launchAtLoginKey: true
         ])
 
         guard defaults.object(forKey: Preferences.didApplyInstallDefaultsKey) == nil else { return }
@@ -59,7 +65,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if !hadPersistentDefaults {
             defaults.set(true, forKey: Preferences.showMenuBarIconKey)
             updaterController.updater.automaticallyChecksForUpdates = true
-            LoginItemManager.setEnabled(true)
         }
 
         defaults.set(true, forKey: Preferences.didApplyInstallDefaultsKey)

@@ -13,6 +13,7 @@ enum Preferences {
     static let peakOpacityKey = "peakOpacity"
     static let didApplyInstallDefaultsKey = "didApplyInstallDefaults"
     static let showMenuBarIconKey = "showMenuBarIcon"
+    static let launchAtLoginKey = "launchAtLogin"
 
     static var threshold: Int {
         let value = UserDefaults.standard.object(forKey: thresholdKey) as? Int ?? defaultThreshold
@@ -366,7 +367,10 @@ private struct GeneralTab: View {
                         Toggle("", isOn: $launchAtLogin)
                             .labelsHidden()
                             .toggleStyle(.switch)
-                            .onChange(of: launchAtLogin) { val in LoginItemManager.setEnabled(val) }
+                            .onChange(of: launchAtLogin) { val in
+                                LoginItemManager.setEnabled(val)
+                                UserDefaults.standard.set(val, forKey: Preferences.launchAtLoginKey)
+                            }
                     }
                     RDDivider(t: t)
                     RDRow("Show menu bar icon",
