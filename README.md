@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="redeye/Assets.xcassets/AppIcon.appiconset/icon_512x512.png" width="128" alt="redeye">
+    <!-- <img src="redeye/Assets.xcassets/AppIcon.appiconset/icon_512x512.png" width="128" alt="redeye"> -->
     <h1>redeye</h1>
   <p><strong>A macOS menu bar app that tints your display red as your battery runs low — so you never get surprised by a dead laptop.</strong><br>
     <!-- Inspired by a Hammerspoon script of the same name. -->
