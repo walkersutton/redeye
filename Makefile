@@ -1,4 +1,4 @@
-.PHONY: setup kill preview publish publish-patch publish-minor publish-major release-patch release-minor release-major release-stats
+.PHONY: setup kill preview publish publish-patch publish-minor publish-major release-patch release-minor release-major release-stats icon
 
 setup:
 	brew install swiftlint swiftformat
@@ -33,3 +33,6 @@ release-major:
 
 release-stats:
 	scripts/release-stats.sh
+
+icon:
+	scripts/generate-icon.sh
