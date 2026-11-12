@@ -16,5 +16,8 @@ class OverlayWindow: NSWindow {
         ignoresMouseEvents = true
         isReleasedWhenClosed = false
         collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
+        // Keep the tint visible only to the user: exclude it from screenshots,
+        // screen recordings, and screen sharing.
+        sharingType = .none
     }
 }
