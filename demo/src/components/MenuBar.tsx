@@ -74,12 +74,11 @@ export const MenuBar: React.FC<Props> = ({ batteryPct, isCharging, clockTime }) 
 
       {/* Right: status area */}
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        {/* redeye menu bar icon — eye silhouette, no background */}
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
-          <path d="M9 1C5 1 1.5 4 0.5 6C1.5 8 5 11 9 11C13 11 16.5 8 17.5 6C16.5 4 13 1 9 1Z"
-            stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" fill="none" strokeLinejoin="round" />
-          <circle cx="9" cy="6" r="2.4" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" fill="none" />
-          <circle cx="9" cy="6" r="0.9" fill="rgba(255,255,255,0.85)" />
+        {/* redeye menu bar icon — filled eye, matches SF Symbol eye.fill */}
+        <svg width="18" height="12" viewBox="0 0 18 12">
+          <path fillRule="evenodd" fill="rgba(255,255,255,0.85)"
+            d="M9 0.8C4.8 0.8 1.4 3.9 0.4 6C1.4 8.1 4.8 11.2 9 11.2C13.2 11.2 16.6 8.1 17.6 6C16.6 3.9 13.2 0.8 9 0.8ZM9 3.2A2.8 2.8 0 1 0 9 8.8A2.8 2.8 0 1 0 9 3.2Z" />
+          <circle cx="9" cy="6" r="1.3" fill="rgba(255,255,255,0.85)" />
         </svg>
 
         {/* Wi-Fi */}

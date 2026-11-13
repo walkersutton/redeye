@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <!-- macOS icon grid: 824pt body inset 100pt, ~185pt corner radius -->
   <rect x="100" y="100" width="824" height="824" rx="185" fill="#E8352B"/>
-  <path d="M 222 512 Q 512 232 802 512 Q 512 792 222 512 Z" fill="#FFFFFF"/>
-  <circle cx="512" cy="512" r="96" fill="#E8352B"/>
+  <path d="M 242 512 C 402 267 622 267 782 512 C 622 757 402 757 242 512 Z" fill="#FFFFFF"/>
+  <circle cx="512" cy="512" r="110" fill="#E8352B"/>
+  <circle cx="552" cy="472" r="29" fill="#FFFFFF"/>
 </svg>

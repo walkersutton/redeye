@@ -10,3 +10,6 @@ for size in 16 32 64 128 256 512 1024; do
 	rsvg-convert -w "$size" -h "$size" "$SVG" -o "$OUT/icon_${size}x${size}.png"
 done
 echo "Wrote AppIcon PNGs to $OUT"
+
+rsvg-convert -w 512 -h 512 "$SVG" -o demo/public/redeye-eye-icon.png
+echo "Wrote demo/public/redeye-eye-icon.png"
