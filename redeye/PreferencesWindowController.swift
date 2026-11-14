@@ -298,6 +298,38 @@ private struct ContentArea: View {
     }
 }
 
+// MARK: - App mark
+
+/// Mirrors scripts/AppIcon.svg: flat red tile, solid white eye, red pupil, white catchlight.
+/// Coordinates are in the SVG's 1024pt space; the icon body is 824pt inset by 100pt.
+private struct AppMark: View {
+    var body: some View {
+        Canvas { context, size in
+            let scale = size.width / 824
+            context.translateBy(x: -100 * scale, y: -100 * scale)
+            context.scaleBy(x: scale, y: scale)
+
+            let tile = Path(roundedRect: CGRect(x: 100, y: 100, width: 824, height: 824), cornerRadius: 185)
+            context.fill(tile, with: .color(Color(hex: 0xe8352b)))
+
+            var eye = Path()
+            eye.move(to: CGPoint(x: 242, y: 512))
+            eye.addCurve(to: CGPoint(x: 782, y: 512),
+                         control1: CGPoint(x: 402, y: 267), control2: CGPoint(x: 622, y: 267))
+            eye.addCurve(to: CGPoint(x: 242, y: 512),
+                         control1: CGPoint(x: 622, y: 757), control2: CGPoint(x: 402, y: 757))
+            eye.closeSubpath()
+            context.fill(eye, with: .color(.white))
+
+            let pupil = Path(ellipseIn: CGRect(x: 512 - 110, y: 512 - 110, width: 220, height: 220))
+            context.fill(pupil, with: .color(Color(hex: 0xe8352b)))
+
+            let catchlight = Path(ellipseIn: CGRect(x: 552 - 29, y: 472 - 29, width: 58, height: 58))
+            context.fill(catchlight, with: .color(.white))
+        }
+    }
+}
+
 // MARK: - App pill
 
 private struct AppPill: View {
@@ -305,24 +337,8 @@ private struct AppPill: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(LinearGradient(
-                        colors: [Color(red: 1, green: 0.357, blue: 0.318),
-                                 Color(red: 0.886, green: 0.176, blue: 0.133)],
-                        startPoint: .topLeading, endPoint: .bottomTrailing
-                    ))
-                    .frame(width: 22, height: 22)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 6)
-                            .inset(by: 0.5)
-                            .stroke(Color.white.opacity(0.28), lineWidth: 1)
-                    }
-                    .shadow(color: .black.opacity(0.30), radius: 2, x: 0, y: 1)
-                Image(systemName: "eye")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white)
-            }
+            AppMark()
+                .frame(width: 22, height: 22)
             Text("redeye")
                 .font(.system(size: 13.5, weight: .semibold))
                 .foregroundStyle(t.text)
@@ -539,7 +555,11 @@ private struct AboutTab: View {
                 .foregroundStyle(t.accent)
                 .font(.system(size: 13))
                 .onHover { inside in
-                    if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                    if inside {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
                 }
                 .padding(.top, 20)
 
@@ -547,7 +567,11 @@ private struct AboutTab: View {
                 Text("© 2024 ")
                 Link("Walker Sutton", destination: authorURL)
                     .onHover { inside in
-                        if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                        if inside {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
                     }
             }
             .font(.system(size: 12))
